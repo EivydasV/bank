@@ -1,0 +1,197 @@
+services:
+  nest:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=nest
+    command: yarn start:dev -- nest
+    container_name: nest
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - auth-service
+      - bank
+
+  bank:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=bank
+    command: yarn start:dev -- bank
+    container_name: bank
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./apps/bank:/usr/src/app/apps/bank
+      - /usr/src/app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=auth-service
+    command: yarn start:dev -- auth-service
+    container_name: auth-service
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./apps/auth-service:/usr/src/app/apps/auth-service
+      - /usr/src/app/node_modules
+    depends_on:
+      - kafka
+  user-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=user-service
+    command: yarn start:dev -- user-service
+    container_name: user-service
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./apps/user-service:/usr/src/app/apps/user-service
+      - /usr/src/app/node_modules
+    depends_on:
+      - kafka
+
+  account-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=account-service
+    command: yarn start:dev -- account-service
+    container_name: account-service
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./apps/account-service:/usr/src/app/apps/account-service
+      - /usr/src/app/node_modules
+    depends_on:
+      - kafka
+
+  credit-card-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=credit-card-service
+    command: yarn start:dev -- credit-card-service
+    container_name: credit-card-service
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./apps/credit-card-service:/usr/src/app/apps/credit-card-service
+      - /usr/src/app/node_modules
+    depends_on:
+      - kafka
+
+  transaction-service:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - APP_NAME=transaction-service
+    command: yarn start:dev -- transaction-service
+    container_name: transaction-service
+    volumes:
+      - ./libs:/usr/src/app/libs
+      - ./package.json:/usr/src/app/package.json
+      - ./tsconfig.json:/usr/src/app/tsconfig.json
+      - ./apps/transaction-service:/usr/src/app/apps/transaction-service
+      - /usr/src/app/node_modules
+    depends_on:
+      - kafka
+
+  mongo:
+    image: mongo:7.0.11
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - zookeeper-data:/data
+
+  kafka:
+    image: wurstmeister/kafka:2.13-2.8.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    links:
+      - zookeeper
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKAJS_NO_PARTITIONER_WARNING: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+
+  postgres:
+    container_name: postgres
+    image: 'postgres:16.3'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: supertokens
+    ports:
+      - "5432:5432"
+    #     restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ 'CMD', 'pg_isready', '-U', 'supertokens_user', '-d', 'supertokens' ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  supertokens:
+    container_name: supertokens
+    image: registry.supertokens.io/supertokens/supertokens-postgresql:9.1
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "3567:3567"
+    environment:
+      POSTGRESQL_CONNECTION_URI: "postgresql://postgres:postgres@postgres:5432/supertokens"
+    #     restart: unless-stopped
+    healthcheck:
+      test: >
+        bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
+  mongo-data:
+  zookeeper-data:
