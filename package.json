@@ -21,6 +21,7 @@
 	},
 	"dependencies": {
 		"@apollo/server": "^4.10.4",
+		"@itgorillaz/configify": "^1.2.3",
 		"@nestjs/apollo": "^12.2.0",
 		"@nestjs/common": "^10.3.10",
 		"@nestjs/config": "^3.2.3",
@@ -63,16 +64,25 @@
 		"typescript": "^5.5.3"
 	},
 	"jest": {
-		"moduleFileExtensions": ["js", "json", "ts"],
+		"moduleFileExtensions": [
+			"js",
+			"json",
+			"ts"
+		],
 		"rootDir": ".",
 		"testRegex": ".*\\.spec\\.ts$",
 		"transform": {
 			"^.+\\.(t|j)s$": "ts-jest"
 		},
-		"collectCoverageFrom": ["**/*.(t|j)s"],
+		"collectCoverageFrom": [
+			"**/*.(t|j)s"
+		],
 		"coverageDirectory": "./coverage",
 		"testEnvironment": "node",
-		"roots": ["<rootDir>/apps/", "<rootDir>/libs/"],
+		"roots": [
+			"<rootDir>/apps/",
+			"<rootDir>/libs/"
+		],
 		"moduleNameMapper": {
 			"^@app/shared(|/.*)$": "<rootDir>/libs/shared/src/$1"
 		}

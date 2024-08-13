@@ -1,5 +1,5 @@
 import { CreditCard, DocId, OmitBaseType, SaverInterface } from '@app/shared';
-import { EncryptionService } from '@app/shared/encryption/service';
+import { EncryptionService } from '@app/shared';
 import { Injectable } from '@nestjs/common';
 import { CreditCardRepository } from '../repository/credit-card.repository';
 import { CreditCardDocument } from '../schema/credit-card.schema';

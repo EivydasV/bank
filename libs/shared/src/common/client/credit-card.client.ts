@@ -1,1 +1,0 @@
-export const CREDIT_CARD_CLIENT = Symbol('CREDIT_CARD_CLIENT');

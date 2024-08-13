@@ -5,7 +5,7 @@ import {
 	convertToOriginalValues,
 } from '@app/shared/common';
 import { DocId } from '@app/shared/db';
-import { Inject, Injectable, OnModuleInit, Scope } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { BaseDataLoader } from './base.data-loader';

@@ -1,4 +1,8 @@
-import { USER_CLIENT } from '@app/shared';
+import {
+	USER_CLIENT,
+	createKafkaClient,
+	generateKafkaClientId,
+} from '@app/shared';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -11,21 +15,8 @@ import { SupertokenService } from './service/supertoken.service';
 @Module({
 	imports: [
 		ClientsModule.register([
-			{
-				name: USER_CLIENT,
-				transport: Transport.KAFKA,
-				options: {
-					client: {
-						clientId: 'BANK_AUTH_USER_CLIENT_ID',
-						brokers: ['kafka:9092'],
-					},
-					consumer: {
-						groupId: 'BANK_AUTH_USER_CONSUMER_GROUP_ID',
-					},
-				},
-			},
+			createKafkaClient(USER_CLIENT, 'BANK_AUTH_USER_SERVICE'),
 		]),
-
 		ConfigModule.forFeature(supertokenConfig),
 	],
 	providers: [SupertokenService, { provide: APP_GUARD, useClass: AuthGuard }],

@@ -3,6 +3,8 @@ import {
 	CreditCard,
 	SharedModule,
 	USER_CLIENT,
+	createKafkaClient,
+	generateKafkaClientId,
 } from '@app/shared';
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -18,32 +20,8 @@ import { BeforeCreateValidation } from './validation/before-create.validation';
 @Module({
 	imports: [
 		ClientsModule.register([
-			{
-				name: ACCOUNT_CLIENT,
-				transport: Transport.KAFKA,
-				options: {
-					client: {
-						clientId: 'CREDIT_CARD_ACCOUNT_SERVICE_CLIENT_ID_2',
-						brokers: ['kafka:9092'],
-					},
-					consumer: {
-						groupId: 'CREDIT_CARD_ACCOUNT_SERVICE_GROUP_ID_2',
-					},
-				},
-			},
-			{
-				name: USER_CLIENT,
-				transport: Transport.KAFKA,
-				options: {
-					client: {
-						clientId: 'CREDIT_CARD_USER_SERVICE_CLIENT_ID',
-						brokers: ['kafka:9092'],
-					},
-					consumer: {
-						groupId: 'CREDIT_CARD_USER_SERVICE_GROUP_ID',
-					},
-				},
-			},
+			createKafkaClient(ACCOUNT_CLIENT, 'CREDIT_CARD_ACCOUNT_SERVICE'),
+			createKafkaClient(USER_CLIENT, 'CREDIT_CARD_USER_SERVICE'),
 		]),
 		MongooseModule.forFeature([
 			{

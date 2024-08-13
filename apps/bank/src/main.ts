@@ -1,5 +1,5 @@
 import 'json-bigint-patch';
-import { validationExceptionFormatter } from '@app/shared/util/validation-exception-formatter.util';
+import { validationExceptionFormatter } from '@app/shared';
 import { HttpStatus, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';

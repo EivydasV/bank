@@ -9,7 +9,6 @@ export class AccountResolver {
 
 	@ResolveField()
 	async connectedToAccount(@Parent() creditCard: CreditCard): Promise<Account> {
-		console.log('creditCard', creditCard);
 		return this.accountService.findByConnectedToAccount(
 			creditCard.connectedToAccount,
 		);
